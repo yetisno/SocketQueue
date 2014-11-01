@@ -1,4 +1,4 @@
-package org.yetiz.service.socketqueue.run;
+package org.yetiz.service.run;
 
 import org.junit.After;
 import org.junit.Assert;

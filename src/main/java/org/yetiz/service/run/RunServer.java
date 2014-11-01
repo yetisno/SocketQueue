@@ -1,4 +1,4 @@
-package org.yetiz.service.socketqueue.run;
+package org.yetiz.service.run;
 
 import org.yetiz.service.socketqueue.Server;
 

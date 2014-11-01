@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.yetiz.service</groupId>
-    <artifactId>socketqueue</artifactId>
+    <artifactId>SocketQueue</artifactId>
     <version>1.0</version>
     <dependencies>
         <dependency>
@@ -43,7 +43,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <finalName>SocketQueue</finalName>
+                    <finalName>${project.artifactId}</finalName>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>

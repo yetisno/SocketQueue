@@ -9,9 +9,9 @@ import java.util.concurrent.Semaphore;
 
 /**
  * @author yeti
- * @see java.lang.Thread
  * @version 1.0
- * Created by yeti on 14/11/1.
+ *          Created by yeti on 14/11/1.
+ * @see java.lang.Thread
  */
 public class Server extends Thread {
 
@@ -66,6 +66,7 @@ public class Server extends Thread {
 
 	/**
 	 * check whether server is close or not.
+	 *
 	 * @return true on Server is closed, and otherwise is false.
 	 */
 	public boolean isClosed() {

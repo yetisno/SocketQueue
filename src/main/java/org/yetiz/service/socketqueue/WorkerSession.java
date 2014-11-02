@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -22,7 +21,6 @@ public class WorkerSession extends Thread {
 	private ByteArrayQueue byteArrayQueue;
 	private ConcurrentLinkedQueue<WorkerSession> workerSessions;
 	private boolean _shutdown = false;
-	private Semaphore sleepTimer = new Semaphore(1);
 
 	/**
 	 * Create a WorkerSession to process connection.
@@ -38,11 +36,8 @@ public class WorkerSession extends Thread {
 		try {
 			dataInputStream = new DataInputStream(socket.getInputStream());
 			dataOutputStream = new DataOutputStream(socket.getOutputStream());
-			sleepTimer.acquire();
 		} catch (IOException e) {
 			System.err.println("Socket stream error. " + e.toString());
-		} catch (InterruptedException e) {
-			System.err.println("Interrupt Occurred. " + e.toString());
 		}
 	}
 

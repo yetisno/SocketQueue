@@ -3,16 +3,9 @@ package org.yetiz.util.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-/**
- * Created by yeti on 14/11/1.
- */
 public class IOBufferInputStream extends InputStream {
 
 	private IOBuffer iOBuffer;
-
-	private IOBufferInputStream() {
-		throw new UnsupportedClassVersionError();
-	}
 
 	public IOBufferInputStream(IOBuffer iOBuffer) {
 		this.iOBuffer = iOBuffer;
@@ -24,60 +17,8 @@ public class IOBufferInputStream extends InputStream {
 	}
 
 	@Override
-	public int read(byte[] b) throws IOException {
-		return read(b, 0, b.length);
-	}
-
-	@Override
-	public int read(byte[] b, int off, int len) throws IOException {
-		if (b == null) {
-			throw new NullPointerException();
-		} else if (off < 0 || len < 0 || len > b.length - off) {
-			throw new IndexOutOfBoundsException();
-		} else if (len == 0) {
-			return 0;
-		}
-
-		int c = read();
-		if (c == -1) {
-			return -1;
-		}
-		b[off] = (byte) c;
-
-		int i = 1;
-		try {
-			for (; i < len; i++) {
-				c = read();
-				if (c == -1) {
-					break;
-				}
-				b[off + i] = (byte) c;
-			}
-		} catch (IOException ee) {
-		}
-		return i;
-	}
-
-	@Override
 	public int available() throws IOException {
 		return (int) iOBuffer.remaining();
-	}
-
-	@Override
-	public long skip(long n) throws IOException {
-		long length = 0;
-		if (iOBuffer.remaining() < n) {
-			length = iOBuffer.remaining();
-			for (long i = 0; i < length; i++) {
-				iOBuffer.get();
-			}
-		} else {
-			length = n;
-			for (long i = 0; i < length; i++) {
-				iOBuffer.get();
-			}
-		}
-		return length;
 	}
 
 	/**
@@ -89,7 +30,7 @@ public class IOBufferInputStream extends InputStream {
 	}
 
 	/**
-	 * mark current read position for reset.
+	 * mark current read position for <code>reset</code>.
 	 *
 	 * @param readlimit this param is no used.
 	 */
@@ -99,7 +40,7 @@ public class IOBufferInputStream extends InputStream {
 	}
 
 	/**
-	 * check whether support mark function.
+	 * check whether support <code>mark</code> function.
 	 *
 	 * @return always return true.
 	 */

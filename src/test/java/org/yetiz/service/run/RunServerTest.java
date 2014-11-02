@@ -35,11 +35,10 @@ public class RunServerTest {
 		try {
 			//Server
 			Socket socket = new Socket("localhost", 8888);
-
 			for (int i = 0; i < 100; i++) {
 				socket.getOutputStream().write(0x00);
-				socket.getOutputStream().write(ByteBuffer.allocate(4).putInt(new Integer(i).toString().getBytes().length).array());
-				socket.getOutputStream().write(new Integer(i).toString().getBytes());
+				socket.getOutputStream().write(ByteBuffer.allocate(4).putInt(Integer.toString(i).getBytes().length).array());
+				socket.getOutputStream().write(Integer.toString(i).getBytes());
 				socket.getOutputStream().flush();
 			}
 			DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
@@ -53,7 +52,7 @@ public class RunServerTest {
 				length = ByteBuffer.wrap(size).getInt();
 				data = new byte[length];
 				dataInputStream.readFully(data, 0, length);
-				Assert.assertArrayEquals(new Integer(i).toString().getBytes(), data);
+				Assert.assertArrayEquals(Integer.toString(i).getBytes(), data);
 				System.out.println("ASSERT - Expect " + i + " Result " + new String(data));
 			}
 			socket.close();

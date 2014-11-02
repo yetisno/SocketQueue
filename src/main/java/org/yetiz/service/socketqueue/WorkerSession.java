@@ -3,6 +3,7 @@ package org.yetiz.service.socketqueue;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -25,7 +26,8 @@ public class WorkerSession extends Thread {
 
 	/**
 	 * Create a WorkerSession to process connection.
-	 * @param socket the connected socket from server.
+	 *
+	 * @param socket         the connected socket from server.
 	 * @param byteArrayQueue store and get data in this queue.
 	 * @param workerSessions the list of all active session.
 	 */
@@ -51,29 +53,19 @@ public class WorkerSession extends Thread {
 	@Override
 	public void run() {
 		while (true) {
-			if (socket.isClosed()) {
+			if (socket.isClosed())
 				break;
-			}
-			try {
-				if (socket.getInputStream().available() < 1) {
-					sleepTimer.tryAcquire(100, TimeUnit.MILLISECONDS);
-					continue;
-				}
-			} catch (InterruptedException e) {
-				System.err.println("Interrupt Occurred. " + e.toString());
-				close();
-				break;
-			} catch (IOException e) {
-				System.err.println("Socket stream error. " + e.toString());
-				close();
-			}
 			byte[] flag = new byte[1];
 			try {
 				dataInputStream.readFully(flag);
-				dispatch(flag[0]);
-			} catch (Exception e) {
+			} catch (EOFException e) {
+				System.err.println(fixErrorMessage("Remote Socket Closed."));
+				break;
+			} catch (IOException e) {
 				System.err.println(fixErrorMessage("get flag error."));
+				continue;
 			}
+			dispatch(flag[0]);
 		}
 		workerSessions.remove(this);
 		System.out.println("Worker session " + getName() + " closed.");
@@ -134,6 +126,7 @@ public class WorkerSession extends Thread {
 
 	/**
 	 * Check whether WorkerSession is closed or not.
+	 *
 	 * @return true on close or otherwise is false.
 	 */
 	public boolean shutdowned() {

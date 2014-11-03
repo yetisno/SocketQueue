@@ -8,6 +8,7 @@ import org.yetiz.service.socketqueue.Server;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Callable;
@@ -102,26 +103,24 @@ public class RunServerTest {
 				Assert.assertEquals(10 * 1024 * 1024, data.length);
 				System.out.println("ASSERT - Expect length 10 * 1024 * 1024 Result " + data.length);
 			}
-			System.out.println("100000 records test");
-			for (int i = 0; i < 100000; i++) {
-				socket.getOutputStream().write(0x00);
-				socket.getOutputStream().write(ByteBuffer.allocate(4).putInt(Integer.toString(i).getBytes().length).array());
-				socket.getOutputStream().write(Integer.toString(i).getBytes());
-				if ((i + 1) % 10000 == 0) {
-					System.out.println((i + 1) + " records pushed.");
-				}
-			}
-			socket.getOutputStream().flush();
-			socket.close();
+			System.out.println("100K records test");
 
 			ExecutorService executorService = Executors.newCachedThreadPool();
-			Future<Integer> count1 = executorService.submit(new MultiRECVClient(0, 25000));
-			Future<Integer> count2 = executorService.submit(new MultiRECVClient(25000, 50000));
-			Future<Integer> count3 = executorService.submit(new MultiRECVClient(50000, 75000));
-			Future<Integer> count4 = executorService.submit(new MultiRECVClient(75000, 100000));
+			Future<Integer> count1 = executorService.submit(new MultiSENDClient(0, 25000));
+			Future<Integer> count2 = executorService.submit(new MultiSENDClient(25000, 50000));
+			Future<Integer> count3 = executorService.submit(new MultiSENDClient(50000, 75000));
+			Future<Integer> count4 = executorService.submit(new MultiSENDClient(75000, 100000));
 			Assert.assertEquals(100000, count1.get() + count2.get() + count3.get() + count4.get());
 
-			System.out.println("1M records test passed.");
+			System.out.println("100K records send.");
+
+			count1 = executorService.submit(new MultiRECVClient(0, 25000));
+			count2 = executorService.submit(new MultiRECVClient(25000, 50000));
+			count3 = executorService.submit(new MultiRECVClient(50000, 75000));
+			count4 = executorService.submit(new MultiRECVClient(75000, 100000));
+			Assert.assertEquals(100000, count1.get() + count2.get() + count3.get() + count4.get());
+
+			System.out.println("100K records test passed.");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -152,6 +151,37 @@ public class RunServerTest {
 					length = ByteBuffer.wrap(size).getInt();
 					data = new byte[length];
 					dataInputStream.readFully(data, 0, length);
+					count++;
+				}
+				socket.close();
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return count;
+		}
+	}
+
+	public class MultiSENDClient implements Callable<Integer> {
+
+		private int from;
+		private int to;
+
+		public MultiSENDClient(int from, int to) {
+			this.from = from;
+			this.to = to;
+		}
+
+		@Override
+		public Integer call() throws Exception {
+			Integer count = 0;
+			try {
+				Socket socket = new Socket("localhost", 8888);
+				OutputStream outputStream = socket.getOutputStream();
+				for (int i = from; i < to; i++) {
+					outputStream.write(0x00);
+					outputStream.write(ByteBuffer.allocate(4).putInt(Integer.toString(i).getBytes().length).array());
+					outputStream.write(Integer.toString(i).getBytes());
 					count++;
 				}
 				socket.close();
